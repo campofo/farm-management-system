@@ -1,0 +1,27 @@
+services:
+  backend:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_NAME: ${APP_NAME}
+      APP_ENV: production
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      # SQLite file lives on a named volume so it persists across restarts
+      DATABASE_URL: sqlite:////app/data/farm_management.db
+      CORS_ORIGINS: ${CORS_ORIGINS}
+    volumes:
+      - backend_data:/app/data
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:
