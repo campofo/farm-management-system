@@ -2,11 +2,18 @@
 // The base URL is configurable via localStorage ("farm_api_base") because
 // the backend runs on the farmer's machine (e.g. http://127.0.0.1:8000).
 
-const DEFAULT_BASE = "http://127.0.0.1:8000";
+// Derive the backend URL from the host the app is opened on, so the same build
+// works locally (localhost:8000) and on a VPS (<vps-ip>:8000) with no config.
+// A saved value in Settings ("farm_api_base") always takes precedence.
+function defaultBase(): string {
+  if (typeof window === "undefined") return "http://127.0.0.1:8000";
+  const { protocol, hostname } = window.location;
+  return `${protocol}//${hostname}:8000`;
+}
 
 export function getApiBase(): string {
-  if (typeof window === "undefined") return DEFAULT_BASE;
-  return window.localStorage.getItem("farm_api_base") || DEFAULT_BASE;
+  if (typeof window === "undefined") return defaultBase();
+  return window.localStorage.getItem("farm_api_base") || defaultBase();
 }
 
 export function setApiBase(url: string) {
